@@ -13,38 +13,63 @@ void loop() {
   float x, y, z;
   float L1 = 10;
   float L2 = 21;
-  Angles joints;
-while (Serial.read == NULL){
+  Angles joint;
+  Coordinates end_effector;
+if(Serial.available() == 0){
   if(millis() - timer > 1000){
     Serial.println("Waiting for a command");
     timer = millis();
+    
   }
+  return;
 }  
-while(Serial.available() > 0){
-input = Serial.readStringUntil('\n')
 
-int firstComma = input.indexOf(',')
-int secondComma = input.indexOf(',', firstComma + 1)
+char input[32];
+int len = Serial.readBytesUntil('\n', input, sizeof(input) - 1);
+input[len] = '\0';
+char* x_str = strtok(input, ",");
+char* y_str = strtok(NULL, ",");
+char* z_str = strtok(NULL, ",");
 
-String x_str = input.substring(0, firstComma)
-String y_str = input.substring(firstComma + 1, secondComma)
-String z_str = input.substring(secondComma + 1)
-
-x = x_str.toFloat()
-y = y_str.toFloat()
-z = z_str.toFloat()
-
-}
+x = atof(x_str);
+y = atof(y_str);
+z = atof(z_str);
 joint = InverseKinematics(x,y,z,L1,L2);
 base.write(joint.alpha_deg);
 shoulder.write(joint.shoulder_deg);
 elbow.write(joint.elbow_deg);
+//TODO: Move this into the other function for data collection and add error calculation
+theta0 = base.read();
+theta1 = shoulder.read();
+theta2 = elbow.read();
+end_effector = ForwardKinematics(theta0,theta1,theta2,L1,L2);
+Serial.println(end_effector.x);
+Serial.println(end_effector.y);
+Serial.println(end_effector.z);
 }
+struct Coordinates{
+  float x;
+  float y;
+  float z;
+};
 struct Angles{
   float alpha_deg;
   float shoulder_deg;
   float elbow_deg;
 };
+Coordinates ForwardKinematics(float theta0, float theta1, float theta2, float L1, float L2){
+  pi = 3.1415;
+  Coordinates coordinates;
+  theta0 = theta0 * pi / 180;
+  theta1 = theta1 * pi / 180;
+  theta2 = theta2 * pi / 180;
+  float theta_total = theta1 + theta2;
+  float r = (L1 * cos(theta1)) + (L2 * cos(theta_total));
+  coordinates.z = (L1 * sin(theta1)) + (L2 * sin(theta_total));
+  coordinates.x = r * cos(theta0);
+  coordinates.y = r * sin(theta0);
+  return coordinates;
+}
 Angles InverseKinematics(float x, float y, float z, float L1, float L2){ 
   Angles result;
   float pi = 3.1415;
