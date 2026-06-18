@@ -1,0 +1,8 @@
+Motion Analysis Report
+
+Frames: 202
+Smoothness score: 4.532837541523737
+Mean wrist velocity: 7.39362013394137
+Max wrist velocity: 32.2490309931942
+Mean elbow angle: 109.47990951472542
+Elbow angle variation: 54.24785907870951
