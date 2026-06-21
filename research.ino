@@ -8,7 +8,7 @@ Serial.begin(9600);
 
 long int timer = millis();
 }
-// TODO: Add the ports for servos and data collection
+// TODO: Add the ports for servos 
 void loop() {
   float x, y, z;
   float L1 = 10;
@@ -38,14 +38,13 @@ joint = InverseKinematics(x,y,z,L1,L2);
 base.write(joint.alpha_deg);
 shoulder.write(joint.shoulder_deg);
 elbow.write(joint.elbow_deg);
-//TODO: Move this into the other function for data collection and add error calculation
 theta0 = base.read();
 theta1 = shoulder.read();
 theta2 = elbow.read();
 end_effector = ForwardKinematics(theta0,theta1,theta2,L1,L2);
-Serial.println(end_effector.x);
-Serial.println(end_effector.y);
-Serial.println(end_effector.z);
+  if (Serial.read() == "DATA"){
+    DataCollection(x, end_effector.x, y, end_effector.y, z, end_effector.z);
+  }
 }
 struct Coordinates{
   float x;
@@ -57,6 +56,17 @@ struct Angles{
   float shoulder_deg;
   float elbow_deg;
 };
+void DataCollection(float xt,float x,float yt,float y,float zt,float z){
+  float error = sqrt(pow(xt - x,2) + pow(yt - y,2) + pow(zt - z,2));
+  Serial.print("Overall x-coordinate: ");
+  Serial.println(x);
+  Serial.print("Overall y-coordinate: ");
+  Serial.println(y);
+  Serial.print("Overall z-coordinate: ");
+  Serial.println(z);
+  Serial.print("Estimated error:");
+  Serial.println(error);
+}
 Coordinates ForwardKinematics(float theta0, float theta1, float theta2, float L1, float L2){
   pi = 3.1415;
   Coordinates coordinates;
